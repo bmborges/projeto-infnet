@@ -15,18 +15,16 @@ import { Home } from './src/screens/Home';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AddMarker } from './src/screens/AddMarker';
-import { getUserCoords } from './src/functions/getUserCoords';
 
 
 const Stack = createNativeStackNavigator();
 
 async function init():Promise<void>{
   const isPermissionGranted = await requestPermission();
-  const coords = await getUserCoords();
+
 }
 
 const App = () => {
-  const [userCoords, setUserCoords] = useState();
   const toast = useToast();
 
   useEffect(()=>{

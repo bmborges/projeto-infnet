@@ -1,41 +1,70 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import MapView, { MapMarker, Marker } from 'react-native-maps';
 import styled from 'styled-components/native';
-
-import { Fab } from 'native-base';
-import { Plus } from 'phosphor-react-native';
+import { Fab, Heading, HStack, IconButton, VStack } from 'native-base';
+import { Plus, UserCircle } from 'phosphor-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { getUserCoords } from '../functions/getUserCoords';
+import { GeoCoordinates } from 'react-native-geolocation-service';
+import { Loading } from '../components/Loading';
 
-const MapContainer = styled.View`
-    width: 100%;
-    height: 100%;
+const TextHeader = styled.Text`
+    font-size: 20px;
+    color: 'black';
 `;
 
 const delta = 0.003;
 
 export function Home(){
-    const [userCoords, setUserCoords] = useState();
+    const [userCoords, setUserCoords] = useState<GeoCoordinates>();
     const navigation = useNavigation();
+    const [isLoading, setIsLoading]= useState(true);
+
 
     useEffect(()=>{
-
-
-
-
-
+      setIsLoading(true);
+      async function getCoords(){
+        const coords = await getUserCoords();
+        setUserCoords(coords);
+        setIsLoading(false);
+      }
+      getCoords()
     },[]);
+
+    const userLogin = () => {
+
+    }
+
+
+    if(isLoading){
+      return (
+        <Loading/>
+      )
+    }
 
 
     return (
-        <>
-          <MapContainer>
+        <VStack
+          flex={1}
+        >
+          <HStack
+              p={3}
+              alignItems={'center'}
+              justifyContent={'space-between'}
+          >
+              <Heading>Rota Acessível</Heading>
+              <IconButton
+                onPress={userLogin}
+                icon={<UserCircle size={32} weight="fill" color={'black'}/>}
+              />
+          </HStack>
           <MapView
             showsUserLocation
             style={styles.map}
             region={{
-                latitude: 37.78825,
-                longitude: -122.4324,
+                latitude: userCoords?.latitude,
+                longitude: userCoords?.longitude,
                 latitudeDelta: delta,
                 longitudeDelta: delta,
               }}>
@@ -56,18 +85,17 @@ export function Home(){
                 ),
               )} */}
           </MapView>
-        </MapContainer>
-        <Fab renderInPortal={false} size="sm" 
-          onPress={()=>{navigation.navigate('AddMarker')}}
-        icon={<Plus size={32} weight="fill" color={'white'}/>} />
-      </>
+          <Fab renderInPortal={false} size="sm" 
+            onPress={()=>{navigation.navigate('AddMarker')}}
+            icon={<Plus size={32} weight="fill" color={'white'}/>} />
+      </VStack>
         
     )
 }
 
 const styles = StyleSheet.create({
     map: {
-        width: '100%',
-        height: '100%',
+        width: Dimensions.get('screen').width,
+        height: Dimensions.get('screen').height
     },
-  });
+});
