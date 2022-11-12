@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "110836763451",
+    "project_id": "projetoappinfnet",
+    "storage_bucket": "projetoappinfnet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110836763451:android:b64b95e61464ccdcd6451e",
+        "android_client_info": {
+          "package_name": "com.projetoappinfnet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "110836763451-f6j8c1gtkn455p5j649eh80bd1pbbn8f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPuwNMGGIlbUTRwBKqVAWcCUI6duYMyCg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "110836763451-f6j8c1gtkn455p5j649eh80bd1pbbn8f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,11 +1,51 @@
-import { CheckIcon, FormControl, Input, Stack, Text, VStack, WarningOutlineIcon } from "native-base";
+import { Button, CheckIcon, FormControl, HStack, IconButton, Input, Stack, Text, useToast, VStack, WarningOutlineIcon } from "native-base";
 import { Select } from "native-base";
 import { useState } from "react";
-import { TipoMarker } from "../components/TipoMarker";
+import firestore from '@react-native-firebase/firestore';
+import { getUserCoords } from "../functions/getUserCoords";
+import { useNavigation } from "@react-navigation/native";
 
 export function AddMarker(){
 
-    const [situacao, setSituacao] = useState();
+    const [stateMarker, setStateMarker] = useState('');
+    const [typeMarker, setTypeMarker] = useState('');
+    const [latitude, setLatitude] = useState<Number>();
+    const [longitude, setLongitude] = useState<Number>();
+    const [ isSavingFirebase, setIsSavingFirebase] = useState(false);
+    const {goBack} = useNavigation();
+
+    const toast = useToast();
+
+    const getCurrentPosition = async() => {
+        const result = await getUserCoords();
+        setLatitude(result?.latitude);
+        setLongitude(result?.longitude);
+    }
+
+    const onHandleSave = async() => {
+        
+        setIsSavingFirebase(true);
+        try {
+            
+            await firestore().collection("markers").add({
+                typeMarker,
+                stateMarker,
+                coords : {
+                    latitude,
+                    longitude,
+                },
+                createdAt : firestore.FieldValue.serverTimestamp()                
+            });
+            toast.show({description : "Marcação Salva"})
+            goBack();
+            
+        } catch (error) {
+            toast.show({description : "Erro ao salvar Marcação"})
+            
+        }
+        setIsSavingFirebase(false);
+
+    }
 
     return (
         <VStack
@@ -15,56 +55,68 @@ export function AddMarker(){
             <FormControl isRequired>
                 <Stack mx="4">
                     <FormControl.Label>Tipo de Marcação</FormControl.Label>
-                    <TipoMarker/>
+                    <Select selectedValue={typeMarker} minWidth="200" accessibilityLabel="Selecione" placeholder="Selecione" 
+                    _selectedItem={{
+                        bg: "teal.600",
+                        endIcon: <CheckIcon size="5" />
+                    }} mt={1} onValueChange={itemValue => setTypeMarker(itemValue)}>
+                        <Select.Item label="Rampa" value="1" />
+                        <Select.Item label="Faixa Livre" value="2" />
+                        <Select.Item label="Passarela de Pedestre" value="3" />
+                        <Select.Item label="Escada" value="4" />
+                    </Select>
                 </Stack>
             </FormControl>
             <FormControl isRequired>
                 <Stack mx="4">
-                    <Text
-                        fontWeight={"bold"}
-                    >Localização</Text>
+                    <Text fontWeight={"bold"}>Localização</Text>
                     <FormControl.Label>Latitude</FormControl.Label>
-                    <Input type="password" defaultValue="12345" placeholder="password" />
-                    <FormControl.HelperText>
-                        Must be atleast 6 characters.
-                    </FormControl.HelperText>
-                    <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-                        Atleast 6 characters are required.
-                    </FormControl.ErrorMessage>
+                    <Input 
+                        type="text"
+                        value={latitude?.toString()}
+                    />
                 </Stack>
             </FormControl>
             <FormControl isRequired>
                 <Stack mx="4">
                     <FormControl.Label>Longitude</FormControl.Label>
-                    <Input type="password" defaultValue="12345" placeholder="password" />
-                    <FormControl.HelperText>
-                        Must be atleast 6 characters.
-                    </FormControl.HelperText>
-                    <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-                        Atleast 6 characters are required.
-                    </FormControl.ErrorMessage>
+                    <Input 
+                        type="text" 
+                        keyboardType="number-pad"
+                        value={longitude?.toString()}
+                    />
                 </Stack>
             </FormControl>
+            <Button
+                m={4}
+                onPress={getCurrentPosition}
+            >
+                Utilizar Minha Localização
+            </Button>
+
 
             <FormControl isRequired>
                 <Stack mx="4">
                     <FormControl.Label>Estado de Conservação</FormControl.Label>
-                    <Select selectedValue={situacao} minWidth="200" accessibilityLabel="Selecione" placeholder="Selecione" _selectedItem={{
+                    <Select selectedValue={stateMarker} minWidth="200" accessibilityLabel="Selecione" placeholder="Selecione" _selectedItem={{
                         bg: "teal.600",
                         endIcon: <CheckIcon size="5" />
-                    }} mt={1} onValueChange={itemValue => setSituacao(itemValue)}>
-                        <Select.Item label="Ruim" value="ux" />
-                        <Select.Item label="Bom" value="web" />
-                        <Select.Item label="Excelente" value="cross" />
+                    }} mt={1} onValueChange={itemValue => setStateMarker(itemValue)}>
+                        <Select.Item label="Ruim" value="-1" />
+                        <Select.Item label="Bom" value="0" />
+                        <Select.Item label="Excelente" value="1" />
                     </Select>
-                    <FormControl.HelperText>
-                        Must be atleast 6 characters.
-                    </FormControl.HelperText>
-                    <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-                        Atleast 6 characters are required.
-                    </FormControl.ErrorMessage>
                 </Stack>
             </FormControl>
+
+
+            <Button
+                m={4}
+                onPress={onHandleSave}
+                isLoading={isSavingFirebase}
+            >
+                Salvar
+            </Button>
 
 
             

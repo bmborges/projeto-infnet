@@ -8,6 +8,9 @@ import { useNavigation } from '@react-navigation/native';
 import { getUserCoords } from '../functions/getUserCoords';
 import { GeoCoordinates } from 'react-native-geolocation-service';
 import { Loading } from '../components/Loading';
+import firestore from '@react-native-firebase/firestore';
+import { firestoreDateFormat } from '../functions/firestoreDateFormat';
+
 
 const TextHeader = styled.Text`
     font-size: 20px;
@@ -20,6 +23,7 @@ export function Home(){
     const [userCoords, setUserCoords] = useState<GeoCoordinates>();
     const navigation = useNavigation();
     const [isLoading, setIsLoading]= useState(true);
+    const [markers, setMarkers] = useState([]);
 
 
     useEffect(()=>{
@@ -35,6 +39,34 @@ export function Home(){
     const userLogin = () => {
 
     }
+
+
+    useEffect(() => {
+
+      let query = firestore()
+        .collection("markers")
+  
+      const subscriberGetAllMarkers = query.onSnapshot(snapshot => {
+        const data = snapshot.docs.map((document) => {
+          const { coords, stateMarker, typeMarker, createdAt } = document.data();
+          return {
+            id: document.id,
+            createdAt: firestoreDateFormat(createdAt),
+            coords,
+            stateMarker,
+            typeMarker
+          };
+        });
+        setMarkers(data)
+  
+      }, console.warn);
+  
+      return subscriberGetAllMarkers;
+    }, []);
+  
+
+
+
 
 
     if(isLoading){
