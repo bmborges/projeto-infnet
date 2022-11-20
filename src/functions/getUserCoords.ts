@@ -7,7 +7,7 @@ export function getUserCoords(): Promise<GeoCoordinates | undefined> {
         position?.coords && resolve(position.coords);
       },
       error => {
-        console.log(error)
+        // console.log(error)
         resolve(undefined);
       },
     );

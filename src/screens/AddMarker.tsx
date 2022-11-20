@@ -1,17 +1,34 @@
-import { Button, CheckIcon, FormControl, HStack, IconButton, Input, Stack, Text, useToast, VStack, WarningOutlineIcon } from "native-base";
+import { Button, CheckIcon, FormControl, Input, Stack, Text, useToast, VStack } from "native-base";
 import { Select } from "native-base";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import firestore from '@react-native-firebase/firestore';
 import { getUserCoords } from "../functions/getUserCoords";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from "react-native";
+import screens from './../screens.json'
+
+type accessibilityTypeProps = {
+    id: string;
+    description: string;
+    title: string;
+}
+
 
 export function AddMarker(){
-
+    
+    const {params} = useRoute();
     const [stateMarker, setStateMarker] = useState('');
-    const [typeMarker, setTypeMarker] = useState('');
+    const [accessibilityType, setAccessibilityType] = useState('');
     const [latitude, setLatitude] = useState<Number>();
     const [longitude, setLongitude] = useState<Number>();
     const [ isSavingFirebase, setIsSavingFirebase] = useState(false);
+    const [accessibilityTypes, setAccessibilityTypes] = useState([]);
+    const [nomeProfile, setNomeProfile] = useState('')
+    const [userId, setUserId] = useState('')
+
+    const navigation = useNavigation();
+    
     const {goBack} = useNavigation();
 
     const toast = useToast();
@@ -22,19 +39,66 @@ export function AddMarker(){
         setLongitude(result?.longitude);
     }
 
+    useEffect(()=>{
+        if(!!params?.coords){
+
+            let latitude = params?.coords?.coordinate.latitude;
+            let longitude = params?.coords?.coordinate.longitude;
+            setLatitude(latitude);
+            setLongitude(longitude);
+        }
+    },[])
+
+    useEffect(()=>{
+        (async()=>{
+            try {
+                const value = await AsyncStorage.getItem('@storage_perfil')
+                if(value !== null) {
+                    setNomeProfile(value)
+                }
+
+                const userId = await AsyncStorage.getItem('@storage_perfilid')
+                if(userId !== null) {
+                    setUserId(userId)
+                }
+
+            } catch (error) {
+                
+            }
+        })()
+    },[navigation.isFocused()])
+
+
     const onHandleSave = async() => {
+
+
+        if(!nomeProfile) return Alert.alert("Atenção!", "Para salvar uma marcação cadastre um nome no Perfil",
+        [
+            {
+                text: "Cadastrar",
+                onPress: ()=>{navigation.navigate(screens.profile)}
+            },
+            {
+                text: "Ok"
+            }
+        ]
+        )
+
         
         setIsSavingFirebase(true);
         try {
+
             
             await firestore().collection("markers").add({
-                typeMarker,
+                accessibilityType,
                 stateMarker,
                 coords : {
                     latitude,
                     longitude,
                 },
-                createdAt : firestore.FieldValue.serverTimestamp()                
+                createdAt : firestore.FieldValue.serverTimestamp(),
+                nomeProfile,
+                userId                
             });
             toast.show({description : "Marcação Salva"})
             goBack();
@@ -47,6 +111,29 @@ export function AddMarker(){
 
     }
 
+    useEffect(()=>{
+
+        let query = firestore()
+        .collection("accessibilityType")
+        .orderBy("description",'asc')
+
+        const subscriberAccessibilityType = query.onSnapshot(snapshot => {
+            const data = snapshot.docs.map((document) => {
+              const { description, title } = document.data();
+              return {
+                id: document.id,
+                description,
+                title
+              };
+            });
+            setAccessibilityTypes(data);
+          }, console.warn);
+      
+          return subscriberAccessibilityType;
+    },[])
+
+
+
     return (
         <VStack
             flex={1}
@@ -55,15 +142,16 @@ export function AddMarker(){
             <FormControl isRequired>
                 <Stack mx="4">
                     <FormControl.Label>Tipo de Marcação</FormControl.Label>
-                    <Select selectedValue={typeMarker} minWidth="200" accessibilityLabel="Selecione" placeholder="Selecione" 
+                    <Select selectedValue={accessibilityType} minWidth="200" accessibilityLabel="Selecione" placeholder="Selecione" 
                     _selectedItem={{
                         bg: "teal.600",
                         endIcon: <CheckIcon size="5" />
-                    }} mt={1} onValueChange={itemValue => setTypeMarker(itemValue)}>
-                        <Select.Item label="Rampa" value="1" />
-                        <Select.Item label="Faixa Livre" value="2" />
-                        <Select.Item label="Passarela de Pedestre" value="3" />
-                        <Select.Item label="Escada" value="4" />
+                    }} mt={1} onValueChange={itemValue => setAccessibilityType(itemValue)}>
+                        {accessibilityTypes.map((type:accessibilityTypeProps)=>{
+                            return (
+                                <Select.Item key={type.id} label={type.title} value={type.id} />
+                            )
+                        })}
                     </Select>
                 </Stack>
             </FormControl>
@@ -73,7 +161,9 @@ export function AddMarker(){
                     <FormControl.Label>Latitude</FormControl.Label>
                     <Input 
                         type="text"
+                        keyboardType="number-pad"
                         value={latitude?.toString()}
+                        onChangeText={(text)=>{setLatitude(Number(text))}}
                     />
                 </Stack>
             </FormControl>
@@ -84,15 +174,18 @@ export function AddMarker(){
                         type="text" 
                         keyboardType="number-pad"
                         value={longitude?.toString()}
+                        onChangeText={(text)=>{setLongitude(Number(text))}}
                     />
                 </Stack>
             </FormControl>
-            <Button
-                m={4}
-                onPress={getCurrentPosition}
-            >
-                Utilizar Minha Localização
-            </Button>
+            {!(!!params?.coords) ? (
+                <Button
+                    m={4}
+                    onPress={getCurrentPosition}
+                    >
+                    Utilizar Minha Localização
+                </Button>
+            ) : (<></>)}
 
 
             <FormControl isRequired>

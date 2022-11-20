@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
-import MapView, { MapMarker, Marker } from 'react-native-maps';
+import MapView, { LongPressEvent, MapMarker, Marker } from 'react-native-maps';
 import styled from 'styled-components/native';
 import { Fab, Heading, HStack, IconButton, VStack } from 'native-base';
 import { Plus, UserCircle } from 'phosphor-react-native';
@@ -10,7 +10,8 @@ import { GeoCoordinates } from 'react-native-geolocation-service';
 import { Loading } from '../components/Loading';
 import firestore from '@react-native-firebase/firestore';
 import { firestoreDateFormat } from '../functions/firestoreDateFormat';
-
+import screens from './../screens.json';
+import { ModalAddMarker } from '../components/ModalAddMarker';
 
 const TextHeader = styled.Text`
     font-size: 20px;
@@ -24,6 +25,8 @@ export function Home(){
     const navigation = useNavigation();
     const [isLoading, setIsLoading]= useState(true);
     const [markers, setMarkers] = useState([]);
+    const [modalAddMarkerVisible, setModalAddMarkerVisible] = useState(false);
+
 
 
     useEffect(()=>{
@@ -63,11 +66,11 @@ export function Home(){
   
       return subscriberGetAllMarkers;
     }, []);
-  
 
-
-
-
+    const onHandleLongPressMap = (e:LongPressEvent) => {
+      const coords = e.nativeEvent;  
+      navigation.navigate(screens.addMarker,{coords})
+    }
 
     if(isLoading){
       return (
@@ -87,7 +90,11 @@ export function Home(){
           >
               <Heading>Rota Acessível</Heading>
               <IconButton
-                onPress={userLogin}
+                onPress={
+                  () => {
+                    navigation.navigate(screens.profile);
+                  }
+                }
                 icon={<UserCircle size={32} weight="fill" color={'black'}/>}
               />
           </HStack>
@@ -99,26 +106,24 @@ export function Home(){
                 longitude: userCoords?.longitude,
                 latitudeDelta: delta,
                 longitudeDelta: delta,
-              }}>
-            {/* {positionsArray.map(
-              user =>
-                user?.id &&
-                user?.coords && (
+              }}
+              onLongPress={(e)=>{onHandleLongPressMap(e)}}  
+            >
+            {markers.map(
+              marker =>
+                marker?.id &&
+                marker?.coords && (
                   <Marker.Animated
-                    coordinate={user.coords}
-                    key={user.id}
+                    coordinate={marker.coords}
+                    key={marker.id}
                     onPress={() => {
-                        // navigation.navigate(screens.messenger, {
-                            //   screen: messengerScreens.chat,
-                            //   params: user,
-                            //   initial: false,
-                            // });
-                          }}/>
+                      navigation.navigate(screens.viewMarker, {marker});
+                    }}/>
                 ),
-              )} */}
+              )}
           </MapView>
           <Fab renderInPortal={false} size="sm" 
-            onPress={()=>{navigation.navigate('AddMarker')}}
+            onPress={()=>{navigation.navigate(screens.addMarker)}}
             icon={<Plus size={32} weight="fill" color={'white'}/>} />
       </VStack>
         

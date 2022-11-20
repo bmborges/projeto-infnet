@@ -15,7 +15,9 @@ import { Home } from './src/screens/Home';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AddMarker } from './src/screens/AddMarker';
-
+import { ViewMarker } from './src/screens/ViewMarker';
+import screens from './src/screens.json';
+import { Profile } from './src/screens/Profile';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,8 +37,11 @@ const App = () => {
     <NativeBaseProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="AddMarker" component={AddMarker} options={{ headerShown: true, headerTitle: 'Adicionar Ponto' }}/>
+          <Stack.Screen name={screens.home} component={Home} />
+          <Stack.Screen name={screens.addMarker} component={AddMarker} options={{ headerShown: true, headerTitle: 'Adicionar Ponto' }}/>
+          <Stack.Screen name={screens.viewMarker} component={ViewMarker} options={{ headerShown: true, headerTitle: 'Visualizar Ponto' }}/>
+          <Stack.Screen name={screens.profile} component={Profile} options={{ headerShown: true, headerTitle: 'Perfil' }}/>
+
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>
