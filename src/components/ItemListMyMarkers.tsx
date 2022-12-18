@@ -32,7 +32,7 @@ export function ItemListMyMarkers({item}:ItemListMyMarkersProps){
         <Pressable 
             mx={5}
             onPress={() => {
-                navigation.navigate(screens.viewMarker, {marker : {...item}});
+                navigation.navigate(screens.viewMarker as never, {marker : {...item}});
             }}
             maxW="96">
             {({

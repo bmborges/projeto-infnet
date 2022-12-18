@@ -8,44 +8,41 @@
  * @format
  */
 
-import { NativeBaseProvider, useToast } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import { Text, useToast } from 'native-base';
+import React, { useEffect } from 'react';
 import { requestPermission } from './src/permissions/requestGeoLocation';
-import { Home } from './src/screens/Home';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AddMarker } from './src/screens/AddMarker';
-import { ViewMarker } from './src/screens/ViewMarker';
-import screens from './src/screens.json';
-import { Profile } from './src/screens/Profile';
+import { AppPushNotifications } from './src/app/AppPushNotifications';
+import { Routes } from './src/routes';
+import { appStore, AppStoreProvider } from './src/app/appStore';
+import {apolloClient, ApolloProvider} from './src/utils/apolloClient';
+import codePush from 'react-native-code-push';
 
-const Stack = createNativeStackNavigator();
+
+
 
 async function init():Promise<void>{
   const isPermissionGranted = await requestPermission();
 
 }
 
-const App = () => {
-  const toast = useToast();
+function App() {
+  // const toast = useToast();
 
   useEffect(()=>{
-    init()
+    init();
   },[])
+  
 
   return (
-    <NativeBaseProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name={screens.home} component={Home} />
-          <Stack.Screen name={screens.addMarker} component={AddMarker} options={{ headerShown: true, headerTitle: 'Adicionar Ponto' }}/>
-          <Stack.Screen name={screens.viewMarker} component={ViewMarker} options={{ headerShown: true, headerTitle: 'Visualizar Ponto' }}/>
-          <Stack.Screen name={screens.profile} component={Profile} options={{ headerShown: true, headerTitle: 'Perfil' }}/>
 
-        </Stack.Navigator>
-      </NavigationContainer>
-    </NativeBaseProvider>
+    <AppStoreProvider store={appStore}>
+      <ApolloProvider client={apolloClient}>
+        <AppPushNotifications/>
+        <Routes/>
+      </ApolloProvider>
+    </AppStoreProvider>
   );
 };
 
-export default App;
+
+export default codePush(App);

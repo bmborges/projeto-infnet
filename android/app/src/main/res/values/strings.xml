@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Rota Acessível</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">99a9bb14-d849-4476-afcf-a85d0f6a7e34</string>
+    <string name="appCenterCrashes_whenToSendCrashes" moduleConfig="true" translatable="false">DO_NOT_ASK_JAVASCRIPT</string>
+    <string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
 </resources>

@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
-import { Button, Center, FlatList, FormControl, Heading, Input, Stack, Text, useToast, VStack } from "native-base";
+import { Button, Center, FlatList, FormControl, Heading, Input, Stack, Text, useColorMode, useToast, VStack } from "native-base";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import { firestoreDateFormat } from "../functions/firestoreDateFormat";
 import { ItemListMyMarkers } from "../components/ItemListMyMarkers";
+import { useAppDispatch, useAppSelector } from "../app/appStore";
+import { appActions } from "../app/appSlice";
+
+
+const texts = {
+    changeThemeButton: 'Trocar tema global',
+}
 
 export function Profile(){
 
@@ -11,6 +18,9 @@ export function Profile(){
     const [userId, setUserId] = useState<string | null>()
     const [myMarkers, setMyMarkers] = useState([]);
     const toast = useToast()
+    const {toggleColorMode} = useColorMode();
+    const dispatch = useAppDispatch();
+    const isDarkTheme = useAppSelector(state => state.app.isDarkTheme);
 
     const onHandleSave = async() => {
 
@@ -127,6 +137,19 @@ export function Profile(){
                 onPress={onHandleDelete}
             >
                 Deletar
+            </Button>
+
+            <Button
+                m={4}
+                onPress={() => {
+                toggleColorMode();
+                dispatch(
+                    appActions.setDarkTheme({
+                        isDarkTheme: !isDarkTheme,
+                    }),
+                );
+                }}>
+                {texts.changeThemeButton}
             </Button>
 
             <FlatList

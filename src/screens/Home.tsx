@@ -95,7 +95,12 @@ export function Home(){
                     navigation.navigate(screens.profile);
                   }
                 }
-                icon={<UserCircle size={32} weight="fill" color={'black'}/>}
+                icon={
+                  
+                
+                <UserCircle size={32} weight="fill" 
+                                 
+                color={'black'}/>}
               />
           </HStack>
           <MapView
