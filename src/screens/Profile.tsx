@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Center, FlatList, FormControl, Heading, Input, Stack, Text, useColorMode, useToast, VStack } from "native-base";
+import { Button, Center, FlatList, FormControl, Heading, Input, ScrollView, Stack, Text, useColorMode, useToast, VStack } from "native-base";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import { firestoreDateFormat } from "../functions/firestoreDateFormat";
@@ -9,7 +9,8 @@ import { appActions } from "../app/appSlice";
 
 
 const texts = {
-    changeThemeButton: 'Trocar tema global',
+    changeThemeLight: 'Trocar para modo claro',
+    changeThemeDark: 'Trocar para modo escuro',
 }
 
 export function Profile(){
@@ -21,6 +22,7 @@ export function Profile(){
     const {toggleColorMode} = useColorMode();
     const dispatch = useAppDispatch();
     const isDarkTheme = useAppSelector(state => state.app.isDarkTheme);
+    const [isLoading, setIsLoading] = useState(true);
 
     const onHandleSave = async() => {
 
@@ -104,7 +106,7 @@ export function Profile(){
               };
             });
             setMyMarkers(data)
-      
+            setIsLoading(false)
           }, console.warn);
       
   
@@ -112,7 +114,9 @@ export function Profile(){
 
     },[userId])
     return (
-        <VStack>
+        <ScrollView
+           
+        >
             <FormControl isRequired>
                 <Stack mx="4">
                     <FormControl.Label>Nome</FormControl.Label>
@@ -120,6 +124,7 @@ export function Profile(){
                         bg={'white'}
                         type="text"
                         value={nome}
+                        _dark={{color: 'black'}}
                         onChangeText={(text)=>{setNome(text)}}
                     />
                 </Stack>
@@ -149,10 +154,10 @@ export function Profile(){
                     }),
                 );
                 }}>
-                {texts.changeThemeButton}
+                {!isDarkTheme ? texts.changeThemeDark : texts.changeThemeLight}
             </Button>
 
-            <FlatList
+            {!isLoading && (<FlatList
                 data={myMarkers}
                 renderItem={({item}) => (
                     <ItemListMyMarkers item={item}/>
@@ -172,8 +177,8 @@ export function Profile(){
                     )
                 }
                 
-            />
+            />)}
             
-        </VStack>
+        </ScrollView>
     )
 }

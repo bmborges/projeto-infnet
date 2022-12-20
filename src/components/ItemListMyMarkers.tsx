@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import { Box, Center, HStack, Pressable, Text, VStack } from "native-base";
+import { AspectRatio, Box, Center, HStack, Image, Pressable, Text, VStack } from "native-base";
 import {ItemAccessibilityType} from './ItemAccessibilityType'
 import { SmileyStateMarker } from "./SmileyStateMarker";
 import screens from './../screens.json'
@@ -49,16 +49,19 @@ export function ItemListMyMarkers({item}:ItemListMyMarkersProps){
                     }} p="5" rounded="8" shadow={3} borderWidth="1" borderColor="coolGray.300">
                         <HStack>
                             <VStack>
+                                <AspectRatio ratio={320 / 160} width="full">
+                                    <Image src={"https://webservices.jumpingcrab.com/uploads/voluptatum_perspiciatis_eius_ab40ff0767.jpg"} alt="" resizeMode="cover" />
+                                </AspectRatio>
                                 {/* <Text>Id: {item.id}</Text> */}
-                                <Text>Tipo:</Text>
+                                <Text _dark={{color: 'black'}}>Tipo:</Text>
                                 <ItemAccessibilityType id={item?.accessibilityType} showDescription={false}/>
-                                <Text>Data Cadastro: </Text>
-                                <Text>{item.createdAt}</Text>
+                                <Text _dark={{color: 'black'}}>Data Cadastro: </Text>
+                                <Text _dark={{color: 'black'}}>{item.createdAt}</Text>
+                                <Center>
+                                    <TextConservacao>Conservação:</TextConservacao>
+                                    <SmileyStateMarker stateMarker={item.stateMarker}/>
+                                </Center>
                             </VStack>
-                            <Center>
-                                <TextConservacao>Conservação:</TextConservacao>
-                                <SmileyStateMarker stateMarker={item.stateMarker}/>
-                            </Center>
                         </HStack>
                     </Box>;
                 }}

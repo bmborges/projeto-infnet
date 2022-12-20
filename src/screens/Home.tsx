@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import MapView, { LongPressEvent, MapMarker, Marker } from 'react-native-maps';
 import styled from 'styled-components/native';
-import { Fab, Heading, HStack, IconButton, VStack } from 'native-base';
+import { Fab, Heading, HStack, IconButton, Text, VStack } from 'native-base';
 import { Plus, UserCircle } from 'phosphor-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getUserCoords } from '../functions/getUserCoords';
@@ -12,6 +12,7 @@ import firestore from '@react-native-firebase/firestore';
 import { firestoreDateFormat } from '../functions/firestoreDateFormat';
 import screens from './../screens.json';
 import { ModalAddMarker } from '../components/ModalAddMarker';
+import { useAppSelector } from '../app/appStore';
 
 const TextHeader = styled.Text`
     font-size: 20px;
@@ -26,7 +27,7 @@ export function Home(){
     const [isLoading, setIsLoading]= useState(true);
     const [markers, setMarkers] = useState([]);
     const [modalAddMarkerVisible, setModalAddMarkerVisible] = useState(false);
-
+    const isDarkTheme = useAppSelector(state => state.app.isDarkTheme);
 
 
     useEffect(()=>{
@@ -84,7 +85,7 @@ export function Home(){
           flex={1}
         >
           <HStack
-              p={3}
+              paddingX={3}
               alignItems={'center'}
               justifyContent={'space-between'}
           >
@@ -100,8 +101,22 @@ export function Home(){
                 
                 <UserCircle size={32} weight="fill" 
                                  
-                color={'black'}/>}
+                color={ !isDarkTheme ? 'black' : 'white'}/>}
               />
+          </HStack>
+          <HStack
+            paddingX={3}
+            paddingBottom={3}
+          >
+            {!isDarkTheme ? (<>
+              <Text>
+                Oque acha de experimentar o modo escuro?
+              </Text>  
+            </>) : (<>
+              <Text>
+                O app ficou bacana hemmm, no modo escuro...
+              </Text>  
+            </>)}
           </HStack>
           <MapView
             showsUserLocation

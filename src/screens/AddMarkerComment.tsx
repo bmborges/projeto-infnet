@@ -1,17 +1,18 @@
-import {z} from 'zod';
+import {string, z} from 'zod';
 import {useForm, Controller, FieldValues} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {useMutation} from '@apollo/client';
 import {mutationCreateComments} from './ViewMarker/queries/mutationCreateComments'
-import { Box, Button, Column, FormControl, Input, ScrollView, useToast } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { Box, Button, CheckIcon, Column, FormControl, Input, ScrollView, Select, Stack, TextArea, useToast } from 'native-base';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 
 const texts = {
     commentLabel: 'Comentário',
     submitButton: 'Enviar',
     errorToast: 'Houve um erro ao criar o comentário',
-    successToast: 'Comentpario criado com sucesso',
+    successToast: 'Comentário criado com sucesso',
+    titleLabel: 'Título'
 };
 const errorMessages = {
     required(field: string) {
@@ -27,6 +28,7 @@ const errorMessages = {
 const messageMinLength = 16;
 const messageMaxLength = 140;  
 const commentFieldName = texts.commentLabel.toLowerCase();
+const titleFieldName = texts.titleLabel.toLowerCase();
 
 
 const createCommentSchema = z
@@ -41,16 +43,23 @@ const createCommentSchema = z
       .max(messageMaxLength, {
         message: errorMessages.max(commentFieldName, messageMaxLength),
       }),
+    title: z
+      .string({
+        required_error: errorMessages.required(titleFieldName),
+      })
   })
   .transform(form => ({
     ...form,
     comment: form.comment.trim().replace(/\s\s+/g, ' '),
+    title: form.title.trim().replace(/\s\s+/g, ' '),
   }));
 
 type CreateCommentSchema = z.infer<typeof createCommentSchema>;  
 
-
 export function AddMarkerComment(){
+
+    const {params} = useRoute()
+    console.log(params)
 
     const toast = useToast();
     const navigation = useNavigation();
@@ -65,10 +74,12 @@ export function AddMarkerComment(){
       });
 
 
-      async function onSubmit({comment}: CreateCommentSchema) {
+      async function onSubmit({comment, title}: CreateCommentSchema) {
         const {errors} = await createComment({
           variables: {
             comment: comment,
+            title: title,
+            markerUid: params?.id
           },
         });
     
@@ -90,7 +101,27 @@ export function AddMarkerComment(){
     return (
     <ScrollView>
         <Box height="full" margin="4">
-            <Column>
+            <FormControl isRequired isInvalid={'title' in errors}>
+                <FormControl.Label isRequired>
+                    {texts.titleLabel}
+                </FormControl.Label>
+                <Controller
+                    name="title"
+                    control={control}
+                    render={({field: {value, onBlur, onChange}}) => (
+                        <Input
+                            type="text"
+                            value={value}
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            isDisabled={loading}
+                        />
+                    )}
+                />
+                <FormControl.ErrorMessage>
+                    {errors.title?.message}
+                </FormControl.ErrorMessage>
+            </FormControl>
             <FormControl isRequired isInvalid={'comment' in errors}>
                 <FormControl.Label isRequired>
                     {texts.commentLabel}
@@ -99,12 +130,13 @@ export function AddMarkerComment(){
                     name="comment"
                     control={control}
                     render={({field: {value, onBlur, onChange}}) => (
-                        <Input
-                        type="text"
-                        value={value}
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        isDisabled={loading}
+                        <TextArea
+                            numberOfLines={5}
+                            type="text"
+                            value={value}
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            isDisabled={loading}
                         />
                     )}
                 />
@@ -112,6 +144,7 @@ export function AddMarkerComment(){
                     {errors.comment?.message}
                 </FormControl.ErrorMessage>
             </FormControl>
+            
             <Button
                 marginTop="4"
                 onPress={handleSubmit(onSubmit)}
@@ -119,7 +152,6 @@ export function AddMarkerComment(){
                 isLoading={loading}>
                 {texts.submitButton}
             </Button>
-            </Column>
         </Box>
     </ScrollView>
     )

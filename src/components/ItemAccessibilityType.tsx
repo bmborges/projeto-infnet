@@ -38,9 +38,9 @@ export function ItemAccessibilityType({id, showDescription}:ItemAccessibilityTyp
         <VStack
             p={2}
         >
-            <Text fontWeight={"bold"}>{accessibilityType?.title}</Text>
+            <Text _dark={{color: 'black'}} fontWeight={"bold"}>{accessibilityType?.title}</Text>
             {showDescription ? (
-                <Text textAlign={"justify"}>{accessibilityType?.description}</Text>
+                <Text _dark={{color: 'black'}} textAlign={"justify"}>{accessibilityType?.description}</Text>
             ) : (<></>)}
         </VStack>
     )

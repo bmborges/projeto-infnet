@@ -1,3 +1,4 @@
+import { useRoute } from "@react-navigation/native";
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { SceneMap, TabView } from "react-native-tab-view";
@@ -5,7 +6,6 @@ import { CommentMarker } from "./CommentMarker";
 import { InfoMarker } from "./InfoMarker";
 
 export function ViewMarker(){
-
 
     const layout = useWindowDimensions();
     const [index, setIndex] = useState(0);

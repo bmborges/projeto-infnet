@@ -1,13 +1,15 @@
 import { gql } from "@apollo/client";
 
 export const mutationCreateComments = gql`
-    mutation CreateComment(
+    mutation CreateRaMarkerComment(
         $comment: String!
+        $title: String!
         $markerUid: String
     ) {
-        createComment(
+        createRaMarkerComment(
             data : {
                 comment: $comment
+                title: $title
                 markerUid: $markerUid
             }
         ) {
